@@ -8,7 +8,6 @@ import kotlinx.coroutines.Job
 import kotlinx.coroutines.cancel
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
-import kotlin.concurrent.thread
 
 class MainViewModel : ViewModel() {
 
@@ -24,15 +23,21 @@ class MainViewModel : ViewModel() {
             delay(2000)
             Log.d(LOG_TAG, "second coroutine finished")
         }
-
-        thread {
-            Thread.sleep(1000)
-            // parentJob.cancel() // отменятся также дочерние
-            Log.d(LOG_TAG, "parentJob is active: ${parentJob.isActive}")
+        val childJob3 = coroutineScope.launch {
+            delay(1000)
+            try {
+                // первый способ обработки исключений,
+                // если обернуть всю coroutine'у в try/catch -
+                // ошибка не будет поймана, ведь код асинхронный
+                error()
+            } catch (_: Exception) {
+            }
+            Log.d(LOG_TAG, "third coroutine finished")
         }
+    }
 
-        Log.d(LOG_TAG, parentJob.children.contains(childJob1).toString())
-        Log.d(LOG_TAG, parentJob.children.contains(childJob2).toString())
+    private fun error() {
+        throw RuntimeException()
     }
 
     override fun onCleared() {
