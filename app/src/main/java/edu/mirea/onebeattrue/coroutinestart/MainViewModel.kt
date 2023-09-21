@@ -6,6 +6,7 @@ import androidx.lifecycle.viewModelScope
 import kotlinx.coroutines.CancellationException
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.delay
+import kotlinx.coroutines.ensureActive
 import kotlinx.coroutines.isActive
 import kotlinx.coroutines.launch
 
@@ -17,12 +18,8 @@ class MainViewModel : ViewModel() {
             var count = 0
             for (i in 0 until 100_000_000) {
                 for (j in 0 until 100) {
-                    if (isActive) {
-                        count++
-                    } else {
-                        throw CancellationException()
-                    }
-
+                    ensureActive()
+                    count++
                 }
             }
             Log.d(LOG_TAG, "finished: ${System.currentTimeMillis() - before}")
